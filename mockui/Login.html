@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login Page</title>
+</head>
+<body>
+<script type="text/javascript">
+	function jsonobject(argument) {
+       var obj = new Object();
+	   obj.Email = document.getElementsByTagName('Email').value;
+	   obj.Password  = document.getElementsByTagName('Password').value;
+	   var jsonString= JSON.stringify(obj);
+	   return jsonString
+	}
+	$.ajax({
+			type: "POST",
+			url: mockapi.dev/authlog,
+			data: jsonobject(),
+			contentType: "application/json; charset=utf-8",
+			dataType: "html",
+			success: function (data) {
+			alert("here" + data.d.toString());
+		});
+</script>
+	<form>
+		<table>
+			<tr><td>Email id </td><td><input type="Email" name="Email" placeholder="Email"></td></tr>
+			<tr><td>Password</td><td><input type="Password" name="Password" placeholder="Password"></td>
+			<tr><td><input type="Submit" name="Submit" value="Submit" onclick=""></td><td><input type="Reset" name="Reset" value="Reset"></td>
+			</tr>
+		</table>
+
+	</form>
+</body>
+</html>
