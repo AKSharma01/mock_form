@@ -1,161 +1,127 @@
 <html>
 <head>
-    <title>Form Page</title>
+    <title>Auth Page</title>
     <meta name="robots" content="noindex, nofollow" />
-
+       
 	<link rel="stylesheet" href="css/showhide.css"/>
-
-
+   
+        
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<!-- <script src="js/showhide.js"></script> -->
-  <script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="js/showhide.js"></script>
+	<script type="text/javascript">
+		function callApi(){
+		     	$.post({
+				url : "http://mockapi.se/login",
+				method : "POST",
+				contentType : "application/json",
+				dataType:"JSON",
+				data : JSON.stringify({'email': $('#loginemail').val(), 'password' : $('#loginpassword').val()}),
+				// xhrFields : {
+				// 	'Access-Control-Allow-Origin': '*',
+				// 	'Access-Control-Allow-Method' : 'POST',
+				// 	'Access-Control-Allow-Credentials' : true,
+				// 	withCredential : true
+				// },
 
-  //  function login() {
-  //       var email = document.getElementById("email");
-  //       var password = document.getElementById("password");
-  //       var data = { 'email' : email, 'password' : password };
-  //       return data;
-  //  }
-   $("#login").click(function(){
-         $.ajax({
+				headers : {
+					'Content-Type' : "application/json"
+				},
 
-        // The 'type' property sets the HTTP method.
-        // A value of 'PUT' or 'DELETE' will trigger a preflight request.
-        type: 'POST',
+	           success:function(response){
+	           		// alert(response.status)
+	           		console.log(response.data['userid']);
+	           		if (typeof(Storage) !== "undefined") {
+					    localStorage.setItem('userid', response.data['userid']);
+					    localStorage.setItem('username', response.data['username']);
+					    // console.log(localStorage.username);
+					    if (response.data['userid'])
+					    	window.location.href = 'home.html';
+					} else {
+					    alert('localStorage is not supportable.')
+					}
+	                $(".result").html(response);
+	                // 
+	            },
+	            error: function(XMLHttpRequest, textStatus, errorThrown) { 
+	                alert("Status: " + errorThrown); //alert("Error: " + errorThrown); 
+	            } 
+	        });
+		}
+		   
+		function callApi1(){
+		     	$.post({
+				url : "http://mockapi.se/register",
+				method : "POST",
+				contentType : "application/json",
+				dataType:"JSON",
+				data : JSON.stringify({
+					'username' : $('.username').val(),
+					'fullname' : $('.fullname').val(),
+					'email': $('.email').val(),
+					'password' : $('.password').val()
+				}),
+				// xhrFields : {
+				// 	'Access-Control-Allow-Origin': '*',
+				// 	'Access-Control-Allow-Method' : 'POST',
+				// 	'Access-Control-Allow-Credentials' : true,
+				// 	withCredential : true
+				// },
 
-        // The URL to make the request to.
-        url: 'http://mockapi.se/login',
+				headers : {
+					'Content-Type' : "application/json"
+				},
 
-        // The 'contentType' property sets the 'Content-Type' header.
-        // The JQuery default for this property is
-        // 'application/x-www-form-urlencoded; charset=UTF-8', which does not trigger
-        // a preflight. If you set this value to anything other than
-        // application/x-www-form-urlencoded, multipart/form-data, or text/plain,
-        // you will trigger a preflight request.
-        contentType: 'application/json',
+	           success:function(response){
+	           		// alert(response.status)
+	           		console.log(response)
+	                $(".result").html(response);
+	                window.location.href = 'index.html'
+	            },
+	            error: function(XMLHttpRequest, textStatus, errorThrown) { 
+	            	console.log(XMLHttpRequest, textStatus, errorThrown);
+	                alert("Status: " + errorThrown); //alert("Error: " + errorThrown); 
+	            } 
+	        });
+		}
 
-        xhrFields: {
-          // The 'xhrFields' property sets additional fields on the XMLHttpRequest.
-          // This can be used to set the 'withCredentials' property.
-          // Set the value to 'true' if you'd like to pass cookies to the server.
-          // If this is enabled, your server must respond with the header
-          // Access-Control-Allow-Credentials : true,
-          withCredentials: true
-        },
-
-        headers: {
-           'Content-Type': 'application/json;charset=utf-8'
-          // If you set any non-simple headers, your server must include these
-          // headers in the 'Access-Control-Allow-Headers' response header.
-        },
-        // values = login()
-        data : {'email' : document.getElementsByName('email'), 'password' : document.getElementsByName('password')},
-        success: function() {
-          // Here's where you handle a successful response.
-          $location.path('http://mockapi.se/');
-          console.log();
-        },
-
-        error: function() {
-          // Here's where you handle an error response.
-          // Note that if the error was due to a CORS issue,
-          // this function will still fire, but there won't be any additional
-          // information about the error.
-          console.error();
-        }
-      });
-    });
-    $("button1").click(function(){
-          $.ajax({
-
-         // The 'type' property sets the HTTP method.
-         // A value of 'PUT' or 'DELETE' will trigger a preflight request.
-         type: 'POST',
-
-         // The URL to make the request to.
-         url: 'http://mockapi.se/register',
-
-         // The 'contentType' property sets the 'Content-Type' header.
-         // The JQuery default for this property is
-         // 'application/x-www-form-urlencoded; charset=UTF-8', which does not trigger
-         // a preflight. If you set this value to anything other than
-         // application/x-www-form-urlencoded, multipart/form-data, or text/plain,
-         // you will trigger a preflight request.
-         contentType: 'application/json',
-
-         xhrFields: {
-           // The 'xhrFields' property sets additional fields on the XMLHttpRequest.
-           // This can be used to set the 'withCredentials' property.
-           // Set the value to 'true' if you'd like to pass cookies to the server.
-           // If this is enabled, your server must respond with the header
-          //  Access-Control-Allow-Credentials: true,
-           withCredentials: true
-         },
-
-         headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-           // If you set any non-simple headers, your server must include these
-           // headers in the 'Access-Control-Allow-Headers' response header.
-         },
-        //  values = login()
-         data : {
-           'email' : document.getElementsByName('email'),
-           'password' : document.getElementsByName('password'),
-           'username' : document.getElementsByName('username'),
-           'fullname' : document.getElementsByName('fullname')
-         },
-         success: function() {
-           // Here's where you handle a successful response.
-           $location.path('/');
-           console.log()
-         },
-
-         error: function() {
-           // Here's where you handle an error response.
-           // Note that if the error was due to a CORS issue,
-           // this function will still fire, but there won't be any additional
-           // information about the error.
-           console.error();;
-         }
-       });
-     });
-  </script>
-</head>
-
-<body>
-
-
-     <img id="logo" src="img/logo.png "/>
+	</script>
+</head> 
+   
+<body> 
+ 
+ 
+     <img id="logo" src="img/logo.png "/>   
 	   <div id="main">
 	    <!-- Create div first for Login Form-->
      <div id="first">
 	    <form action="" method="post">
-          <h3>Login to your FormGet account.</h3>
+          <h3>Login to your Mock Form account.</h3>
 	      <img id="divider" src="img/divider.png "/>
-		  <input type="text" id="loginemail" placeholder="Email" />
-		  <input type="password" id="loginpassword" placeholder="Password" />
-		  <input type="button" id="login" value="Sign In" />
-
-		  <p id="two">Do not have account? <a href="#" id="signup" class="signup">Sign up here</a></p>
-		</form>
+		  <input type="text" id="loginemail" name="email" placeholder="Email" />
+		  <input type="password" id="loginpassword" name="password" placeholder="Password" />
+		  <input type="button" name="login" value="Sign In" onclick="callApi()" />
+		  
+		  <p id="two">Don't have account? <a href="#" id="signup" class="signup">Sign up here</a></p>
+		</form>	
 	 </div>
-
+	 
 	 <!-- Create div second for Signup Form-->
 	 <div id="second">
 	    <form action="" method="post" id="form">
-	      <h3>Create a Free Account</h3>
+	      <h3>Create a Mock Form Account</h3>
 	      <img id="divider" src="img/divider.png "/>
-		  <input type="text" id="name" name="username" placeholder="User Name" />
-	      <input type="text" id="name" name="fullname" placeholder="Full Name" />
-		  <input type="text" id="registeremail" name="email" placeholder="Email" />
-		  <input type="password" id="registerpassword" name="password" placeholder="Password" />
-		  <input type="button1" id="register" value="Create your Mock account" />
+		  <input type="text" id="name" class="username" placeholder="User Name" />
+		  <input type="text" id="name" class="fullname" placeholder="Full Name" />
+		  <input type="password" id="registerpassword" class="password" placeholder="Password" />
+	      <input type="text" id="registeremail" class="email" placeholder="Email" />
+		  <input type="button" name="register" value="Signup" onclick="callApi1()" />
 		  <p id="two">Already have an account? <a href="#" id="signin" class="signin">Sign in</a></p>
-		</form>
+		</form>  
 	 </div>
-
-  </div>
-
+	 
+  </div> 
+  
 </body>
 
 </html>

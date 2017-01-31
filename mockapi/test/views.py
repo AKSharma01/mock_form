@@ -17,26 +17,23 @@ class Log(MethodView):
 		pass
 
 	def get(self):
-		if 'username' in session:
-			return redirect('/mockapi')
-		return "hello"
+		# if 'username' in session:
+		# 	return "Your r loggedin"
+		# return "logout"
+		pass
 
 	def post(self):
 		jsondata = request.get_json()
 		reg = FormActivity(jsondata)
-		if reg.logvalidate():
-			return redirect('/mockapi')
-		return redirect('/login')
+		if reg.logvalidate()=="True":
+			data = jsonify({'data':{'userid': session['userid'], 'username' : session['username']}})
+			session.pop('username')
+			session.pop('userid')
+			return data
+		elif reg.logvalidate()=="False1":
+			return jsonify({'data':'Password is wrong!'})
+		return jsonify({'data':'User doesn\'t exist'})
 
-class Logout(MethodView):
-	"""docstring for Logout"""
-	def __init__(self):
-		pass
-
-	def get(self):
-		if 'username' in session:
-			session.pop('username', None)
-		return redirect('/login')
 
 
 class Reg(MethodView):
@@ -44,19 +41,16 @@ class Reg(MethodView):
 	def __init__(self):
 		pass
 
-	def get(self):
-		return render_template('form/reg.html')
-
 	def post(self):
-		msg = ''
+		msg = {}
 		jsondata = request.get_json()
 		if re.search(r'\w+@sourceeasy.com',jsondata['email']):
 			reg = FormActivity(jsondata)
 			reg.register()
-			return "You have been successfully registered"
+			return jsonify({'data':"You have been successfully registered"})
 		else :
-			msg = "Mail domen should be of sourceeasy.com"
-		return msg
+			msg = {'data' : "Mail domain should be of sourceeasy.com"}
+		return jsonify(msg)
 
 
 class Dashboard(MethodView):
@@ -65,9 +59,41 @@ class Dashboard(MethodView):
 		pass
 
 	def get(self):
-		if 'username' in session:
-			return "welcome to Dashboard Mr. {}".format(session['username'])
-		return "Sorry Session has been expired or you has been logged out"
+		data = {
+			'welcome' : "welcome via get method.  "
+		}
+		return jsonify(data)
+
+	def post(self):
+		jsondata = request.get_json()
+		# return jsonify({"data" : str(request.get_json()['username'])})
+		msg = "welcome to Dashboard Mr. {}".format(str(request.get_json()['username']))
+		userid =jsondata['userid']
+		user_details = FormActivity(jsondata)
+		details = user_details.select_profile()
+		all_data_in_array = FormActivity(jsondata).select_all_slug_data()
+		# obj = []
+		# for index in all_data_in_array:
+			
+		# 	obj.append({
+		# 		'slug' : index[0],
+		# 		'slug_version_id' : index[1],
+		# 		'slugid' : index[2],
+		# 		'version' : index[3],
+		# 		'json' : index[4],
+		# 		'date' : index[5]
+		# 	})
+		# print obj
+		data = {
+			'welcome' :msg,
+			'username' : details['username'],
+			'fullname' : details['fullname'],
+			'email' : details['email'],
+			"alldata" : all_data_in_array
+			
+		}
+		return jsonify(data)
+		# return "Sorry Session has been expired or you has been logged out"
 
 
 class CreateForm(MethodView):
@@ -76,37 +102,75 @@ class CreateForm(MethodView):
 		pass
 
 	def post(self):
-		if 'username' in session:
-			jsondata = request.get_json()
-			jsondata1 = {
-				"userid" : session['userid'],
-				"slug" : uuid.uuid1().bytes.encode('base64').rstrip('=\n').replace('/', '_'),
-			}
-			slugcreate = FormActivity(jsondata1)
-			slugid = slugcreate.create_slug()
-			jsondata2 = {
-				"slugid" : slugid,
-				"version" : jsondata['version'],
-				"jsondata" : jsondata['jsondata']
-			}
-			slugversioncreate = FormActivity(jsondata2)
-			versionid = slugversioncreate.create_slug_version()
-			return "New slug is inserted into database with id = %s".format(str(versionid))
-		return "Sorry Please login first"
+		# if 'username' in session:
+		jsondata = request.get_json()
+		
+		jsondata1 = {
+			"userid" : jsondata['userid'],
+			"slug" : uuid.uuid1().bytes.encode('base64').rstrip('=\n').replace('/', '_')
+		}
+		slugcreate = FormActivity(jsondata1)
+		slugid = slugcreate.create_slug()
+		jsondata2 = {
+			"slugid" : slugid,
+			"version" : jsondata['version'],
+			"jsondata" : jsondata['jsondata']
+		}
+		slugversioncreate = FormActivity(jsondata2)
+		versionid = slugversioncreate.create_slug_version()
+		return jsonify({"data":str(versionid), "slug": jsondata1['slug'], 'version': jsondata2['version']})
+		# return "Sorry Please login first"
 
 class EditJson(MethodView):
 	"""docstring for EditJson"""
 	def __init__(self):
 		pass
 
-	def get(self, slug, version):
-		pass
+	# def get(self, slug, version):
+	# 	dict_val = {
+	# 		'slug' : slug,
+	# 		'version' : version
+	# 	}
+	# 	FA = FormActivity(dict_val)
+	# 	slugversionid = FA.select_slug_version_id();
+
+# def post(self, slug, version):
+# 		# if 'username' in session:
+# 		dict_val = { 'slug' : slug, 'version' : version }
+# 		data = FormActivity(dict_val)
+# 		return jsonify(data.select_json()) #return to the editor
 
 	def post(self, slug, version):
-		pass
+		# if 'username' in session:
+		modified_json = request.get_json()
+		dict_val = {
+			'slug' : slug,
+			'versionid' : modified_json['versionID'],
+			'version' : modified_json['version'],
+			'jsondata' : modified_json['jsondata']
+		}
+		print dict_val
+		FA = FormActivity(dict_val)
+		FA.update_slug_version_id();
+		return jsonify({'val':'updated value of slug version'})
+		
+		# dict_val = { 'slug' : slug, 'version' : version }
+		# data = FormActivity(dict_val)
+		# return jsonify(data.select_json()) #return to the editor
 
-	def put(self):
-		pass
+		# return "Sorry Please login first"
+
+
+
+	# def put(self, slug, version):
+	# 	# if 'username' in session:
+	# 	jsondata = request.get_json()
+	# 	if jsondata['confirm']:
+	# 		data = FormActivity(jsondata)
+	# 		data.update_slug_jsondata()
+
+				
+		
 
 class ViewJson(MethodView):
 	"""docstring for ViewJson"""
@@ -114,4 +178,28 @@ class ViewJson(MethodView):
 		pass
 
 	def get(self,slug,version):
+		# if 'username' in session:
+		dict_val = { 'slug' : slug, 'version' : version }
+		data = FormActivity(dict_val)
+		onlyjson,slugversionid = data.select_json()
+		version_detail = {
+			"jsondata" : onlyjson,
+			"id" : slugversionid
+		}
+		return jsonify(version_detail) #return to the view page with option to update or "go back to home"
+
+		# return "Sorry Please login first"
+
+
+class Logout(MethodView):
+	"""docstring for Logout"""
+	def __init__(self):
 		pass
+
+	def get(self):
+		data = {'data':'nothing'}
+		if 'username' in session:
+			# data = {'userid' : session['userid'],'username':session['username']}
+			session.pop('username', None)
+			session.pop('userid',None)
+		return jsonify(data)
